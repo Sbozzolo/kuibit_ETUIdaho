@@ -1,0 +1,318 @@
+% !TEX program = xelatex
+
+\documentclass[compress, aspectratio=169]{beamer}
+\usepackage[english]{babel}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[export]{adjustbox}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+
+\usepackage{tikz}
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt={#1{}{invisible}}},
+  alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  },
+}
+\usetikzlibrary{pgfplots.groupplots, shapes.geometric, arrows}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=green!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+
+\newcommand\mybox[2][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
+\newcommand\myboxblue[2][]{\tikz[overlay]\node[fill=blue!12,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
+
+\usetikzlibrary{shapes.misc}
+% \usetikzlibrary{external}
+% \tikzexternalize[optimize = false]
+\usepackage{pgfplots}
+\usetikzlibrary{calc}
+
+\pgfplotsset{compat=1.14}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\DeclareSIUnit[]\dyne{dyn}
+
+% \tikzexternalize[prefix=tikz/,up to date check=diff]
+
+\usetheme[nobackground,logo]{boz}
+\newcommand{\putat}[3]{\begin{picture}(0,0)(0,0)\put(#1,#2){#3}\end{picture}}
+
+\usetikzlibrary{backgrounds}
+\title{\Large \Medium Post-processing Cactus simulations with Python}
+\subtitle{\tiny .}
+\date{June 16, 2022 \vspace*{-0.25cm}}
+\author{{Gabriele Bozzola}}
+\institute{Department of Astronomy and Steward Observatory, \\
+  University of Arizona}
+\conference{}
+
+\begin{document}
+
+{
+  \usebackgroundtemplate{\begin{picture}(100,0)\put(250,-190){\includegraphics[width=6cm]{logo_post}}\end{picture}}
+  \begin{frame}
+    \titlepage
+  \end{frame}
+}
+
+\begin{frame}
+  \frametitle{Plan for the day}
+  \centering
+    \begin{enumerate}
+      \item A brief general introduction on \texttt{kuibit}
+      \item Installing and setting up \texttt{kuibit}
+      \item Exploring examples
+      \item Questions and break
+      \item Developing a script for a new analysis
+    \end{enumerate}
+    All the material is public, focus on understanding and ask questions
+\end{frame}
+
+\begin{frame}
+  \frametitle{Kuibit is a Python library for post-processing simulations}
+  \centering
+
+  Post-processing = visualization \& quantitative analysis \\[1cm]
+
+     \begin{columns}
+       \begin{column}{0.5\linewidth}
+         \centering
+         \includegraphics[width=0.8\columnwidth]{grid2D}
+       \end{column}
+       \begin{column}{0.5\linewidth}
+         \hspace{-1cm}
+         \input{gwsignal.tikz}
+       \end{column}
+     \end{columns}
+     \hfill\\[1cm]
+
+    {\Medium kuibit takes care of the low-level details and lets you focus
+       on science}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Kuibit has excellent documentation (sbozzolo.github.io/kuibit)}
+  \centering
+  \begin{columns}
+    \begin{column}{0.5\linewidth}
+      \centering
+      \includegraphics[width=\columnwidth]{usage}
+      {\Medium USAGE}\\[0.2cm]
+      \includegraphics[width=\columnwidth]{apis}
+      {\Medium APIs}
+    \end{column}
+    \begin{column}{0.5\linewidth}
+      \centering
+      \hfill \\[0.1cm]
+      \includegraphics[width=\columnwidth, height=0.4\columnwidth]{tut}
+      {\Medium TUTORIALS}
+      \includegraphics[width=\columnwidth]{examples}
+      {\Medium EXAMPLES}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to get help?}
+  \begin{columns}
+    \begin{column}{0.5\linewidth}
+      \centering
+      \includegraphics[width=0.4\columnwidth]{email}
+
+      \texttt{gabrielebozzola@email.arizona.edu} \\
+      (fast)
+    \end{column}
+    \begin{column}{0.5\linewidth}
+      \centering
+      \includegraphics[width=0.3\columnwidth]{telegram}
+
+      \url{t.me/kuibit} \\
+      (fastest) \\[1cm]
+    \end{column}
+  \end{columns}
+      \centering
+      \includegraphics[width=0.2\columnwidth]{profil-circ}
+
+      (instantaneous)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Structure of the \texttt{kuibit} project}
+  \centering
+  \begin{tikzpicture}
+    \draw[visible on=<4->] (0,-1) rectangle (10, 5);
+
+    \node[anchor=south east, visible on=<4->] () at (10, -1) {\textsc{know-how}};
+
+    \draw (1, 1) rectangle (4, 3.75);
+
+    \node[anchor=north west] at (1.05, 3.75) {Python module};
+
+    \draw (1.5, 1.35) rectangle (3.5, 3);
+    \node[anchor=north west, align=center] at (1.7, 3) {Objects};
+    \node[anchor=north west, align=center] at (1.7, 2.50) {Readers};
+    \node[anchor=north west, align=center] at (1.7, 2) {Utilities};
+
+    \draw[visible on=<3->] (1, 1) rectangle (9, 0);
+    \node[visible on=<3->] at (5, 0.5) {Infrastructure (CI, CD, \dots)};
+
+    \draw[visible on=<2->] (6, 1) rectangle (9, 3.75);
+    \node[anchor=north west, visible on=<2->] at (6.05, 3.75) {Documentation};
+
+    \draw[visible on=<2->] (6.5, 1.35) rectangle (8.5, 3);
+    \draw[visible on=<2->] (6.5, 1.35) rectangle (8.5, 2);
+    \node[anchor=north west, align=center, visible on=<2->] at (6.75, 3) {Online};
+    \node[anchor=north west, align=center, visible on=<2->] at (6.75, 2.50) {Inline};
+    \node[anchor=north west, align=center, visible on=<2->] at (6.6, 2) {Examples};
+  \end{tikzpicture}
+
+  \texttt{kuibit} is workflow independent
+\end{frame}
+
+\begin{frame}
+  \frametitle{\texttt{kuibit} has three groups of modules}
+  \begin{tikzpicture}
+    \node[draw = black, rectangle] (a) at (-3,0) {Objects};
+
+    \node (a) at (-3,-1) {\texttt{TimeSeries}};
+    \node (a) at (-3,-1.5) {\texttt{FrequencySeries}};
+    \node (a) at (-3,-2) {\texttt{UniformGridData}};
+    \node (a) at (-3,-2.5) {\texttt{HierarchicalGridData}};
+    \node (a) at (-3,-3) {\dots};
+    \pause
+    \node[draw = black, rectangle] (b) at (2,0) {Readers};
+    \node (a) at (2,-1) {\texttt{SimDir}};
+    \node (a) at (2,-1.5) {\texttt{HorizonsDir}};
+    \node (a) at (2,-2) {\texttt{MultipolesDir}};
+    \node (a) at (2,-2.5) {\texttt{GravitationalWavesDir}};
+    \node (a) at (2,-3) {\texttt{ScalarsDir}};
+    \node (a) at (2,-3.5) {\texttt{GridFunctionsDir}};
+    \node (a) at (2,-4) {\dots};
+    \pause
+    \node[draw = black, rectangle] (c) at (7,0) {Utilities};
+    \node (a) at (7,-1) {\texttt{gw\_mismatch}};
+    \node (a) at (7,-1.5) {\texttt{sYlm}};
+    \node (a) at (7,-2) {\texttt{sensitivity\_curves}};
+    \node (a) at (7,-2.5) {\texttt{plot\_color}};
+    \node (a) at (7,-3) {\dots};
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Utilities}
+
+  Convenience functions and useful routines:
+  \begin{itemize}
+    \item \texttt{gw\_utils} (e.g., \texttt{luminosity\_distance\_to\_redshift},
+    \texttt{antenna\_pattern})
+    \item \texttt{unitconv} (e.g., from geometrized to physical and viceversa)
+    \item \texttt{gw\_mismatch}
+    \item \texttt{sensitivity\_curves} (LISA, aLIGO, CE, ET, \dots)
+  \end{itemize}
+
+  Helpers for command-line scripts and visualization
+  \begin{itemize}
+    \item \texttt{argparse\_helper}
+    \item \texttt{visualize\_matplotlib}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Objects (time and frequency series and grid data)}
+  \begin{itemize}
+    \item High-level abstractions for data and useful methods
+    \item E.g., \texttt{TimeSeries} (\texttt{ts(10)}, \texttt{ts1 + np.sin(ts2)})
+    \pause
+    \item \texttt{UniformGridData} for data on a regular patch
+    \item \texttt{HierarchicalGridData} is essentially a collection of
+    \texttt{UniformGridData}
+    \item \texttt{HierarchicalGridData} cannot be visualized directly and have to be resampled to \texttt{UniformGridData}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Readers deal with the output mess and present us with an object }
+  Readers:
+  \begin{itemize}
+    \item Find the files associated to what you asked
+    \item Deal with reading (e.g., HDF5 files, compressed files, reading correct column)
+    \item Clean up the data (e.g., simulation restarts)
+  \end{itemize}
+  \begin{table}[htbp]
+    \centering
+    \begin{tabular}[t]{ll}
+      \texttt{SimDir} & Main point of entry  (find all the files)\\
+  \texttt{*Dir (e.g., GridFunctionsDir)} & Process files from \texttt{SimDir} \\
+  \texttt{All* (e.g., AllGridFunctions)} & Organizes in the various variables \\
+  \texttt{One* (e.g., OneGridFunction)} & Has one variable (usually indexed by iterations) \\
+    \end{tabular}
+  \end{table}
+
+  All are dictionary-like that you can print, or get keys, or access with attributes.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Call for contributions}
+  \begin{columns}
+    \begin{column}{0.7\linewidth}
+      \begin{itemize}
+        \item \texttt{kuibit} is a great framework to make your codes available
+              to the entire community
+        \item Openly developed, accessible, well-commented, easy-to-extend
+        \item Great learning opportunity!
+        \item \url{github.com/Sbozzolo/kuibit}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.3\linewidth}
+      \includegraphics[width=\linewidth]{kuibit_learning}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \centering
+  \begin{columns}
+    \begin{column}{0.6\linewidth}
+      \begin{itemize}
+        \item \texttt{kuibit} is published in the Journal of Open-Source Software
+        \item Telegram user group/support/announcements at \url{t.me/kuibit}
+        \item Feel free to reach me at \texttt{gabrielebozzola@email.arizona.edu}
+        \item A \emph{kuibit} is a Tohono O'odham stick to pluck Saguaro's fruit
+      \end{itemize}
+      \hfill \\[0.5cm]
+      \begin{center}
+      \emph{Harvest the fruit of your \texttt{Cactus} simulations with \texttt{kuibit}!}
+    \end{center}
+    \end{column}
+    \begin{column}{0.4\linewidth}
+      \includegraphics[width=0.85\linewidth]{kuibit}
+    \end{column}
+  \end{columns}
+  \begin{textblock*}{11.5cm}(0.15cm,8.45cm) % {block width} (coords)
+    Credits: Wolfgang Kastaun, NumPy, SciPy, h5py, TACC, NSF, NASA
+  \end{textblock*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Setup}
+  \centering
+  \url{https://sbozzolo.github.io/kuibit/first_steps.html}
+  \url{https://sbozzolo.github.io/kuibit/recommendation_examples.html}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% TeX-engine: xetex
+%%% TeX-command-extra-options: "-shell-escape"
+%%% End:

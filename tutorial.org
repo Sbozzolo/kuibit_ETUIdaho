@@ -1,0 +1,80 @@
+#+TITLE: kuibit: Analyzing Einstein Toolkit simulations with Python
+
+* Part 1: Introduction
+* Part 2: Examples
+** Extracting the data
+#+begin_src bash
+tar xvJf tinyBNS.tar.xz
+#+end_src
+** Setting default options with env variables is supported
+I like PDF files as output (check out =--help=)
+#+begin_src bash
+echo "set KBIT_FIG_EXTENSION 'pdf'" >> ~/.config/fish/config.fish
+#+end_src
+** A first example
+Let us plot the rest mass density at the latest iteration
+#+begin_src bash
+plot_grid_var.py --variable "rho_b" -x0 -20 -20 -x1 20 20 -v --resolution 300 --logscale --colorbar
+#+end_src
+** Configuration files are supported
+Store options in a text file
+#+begin_src txt
+variable = "rho_b"
+origin = [-20,-20]
+corner = [20,20]
+resolution = 300
+verbose = True
+logscale = True
+colorbar = True
+iteration = 0
+#+end_src
+
+Call as
+#+begin_src bash
+plot_grid_var.py -c plot_rho_b.conf
+#+end_src
+** Default datadir and outdir
+By default, =kuibit= looks for simulation data and saves the output in the
+current directory. This is customized with =--datadir= and =--outdir=.
+#+begin_src bash
+plot_grid_var.py -c plot_rho_b.conf --datadir tinyBNS --outdir /tmp
+#+end_src
+
+** Plot grid expressions
+#+begin_src
+plot_grid_expr.py "log10(rho_b**1.33333333)" -x0 -20 -20 -x1 20 20 -v --colorbar
+#+end_src
+** Plot 1D slices (with available data)
+#+begin_src
+plot_1d_vars.py --variables H M1 M2 M3 --logscale --absolute
+#+end_src
+** Plot 1D slices (with data NOT available)
+#+begin_src
+plot_1d_slice.py --variable rho_b -v --logscale --xmin -40 --xmax 40 --axis x --iteration 0
+#+end_src
+** Print available iterations
+#+begin_src
+print_available_iterations.py --variable rho_b -v
+#+end_src
+** Plot GW signal
+#+begin_src
+plot_strain_lm.py -v --mult-l 2 --mult-m 2 --detector-num 1 --pcut 150
+#+end_src
+** Plot GW energy
+#+begin_src
+plot_gw_energy.py -v --detector-num 1 --pcut 150
+#+end_src
+** Plot timeseries
+#+begin_src
+plot_timeseries.py -v --variable rho_b --logyaxis --reduction maximum
+#+end_src
+** Movie
+[[https://sbozzolo.github.io/kuibit/motionpicture.html][Motionpicture]] is a Python package that provides support in making animations.
+kuibit comes with some movie files
+#+begin_src bash
+echo "set MOPI_MOVIES_DIR '/home/sbozzolo/repos/all/kuibit/examples/mopi_movies'" >> ~/.config/fish/config.fish
+#+end_src
+To make a 2D plot of a grid variable
+#+begin_src bash
+mopi grid_var --movies-dir ../kuibit/examples/mopi_movies/ -v --variable rho_b --parallel -o movie --logscale -x0 -30 -30 -x1 30 30 --resolution 300 --pickle-file sim.pickle --colorbar --vmin -10 --vmax -3
+#+end_src
