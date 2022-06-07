@@ -2,6 +2,11 @@
 
 * Part 1: Introduction
 * Part 2: Examples
+** Set up PATHs
+#+begin_src bash
+echo 'set PATH /home/sbozzolo/repos/all/kuibit/examples/bins $PATH' >> ~/.config/fish/config.fish
+echo 'set MOPI_MOVIE_DIR /home/sbozzolo/repos/all/kuibit/examples/mopi_movies' >> ~/.config/fish/config.fish
+#+end_src
 ** Extracting the data
 #+begin_src bash
 tar xvJf tinyBNS.tar.xz
